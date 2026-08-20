@@ -45,46 +45,51 @@ export function App() {
 
   return (
     <div className="relative min-h-screen bg-[#030304] text-platinum selection:bg-white/20 selection:text-white font-sans overflow-x-hidden">
-      {/* Ambient Spotlight Mesh & Noise Grain */}
-      <ParticleBackground />
+      {/* Main Website Interactive Shell (Isolated from print output) */}
+      <div id="main-website-shell" className="print:hidden">
+        {/* Ambient Spotlight Mesh & Noise Grain */}
+        <ParticleBackground />
 
-      {/* Header & Sticky Navigation */}
-      <Navbar
-        onOpenCommandPalette={() => setCommandPaletteOpen(true)}
-        onOpenResumeModal={() => setResumeModalOpen(true)}
-      />
-
-      {/* Main Architectural Layout */}
-      <main className="relative z-10">
-        {/* Section 1: Hero Exhibition with Playfair & Telemetry */}
-        <Hero
+        {/* Header & Sticky Navigation */}
+        <Navbar
+          onOpenCommandPalette={() => setCommandPaletteOpen(true)}
           onOpenResumeModal={() => setResumeModalOpen(true)}
-          onExploreDeployments={handleExploreDeployments}
         />
 
-        {/* Section 2: Curated Live Project Grid (All 15 Applications) */}
-        <ProjectGrid
-          onOpenDetails={(project) => setSelectedProject(project)}
-        />
+        {/* Main Architectural Layout */}
+        <main className="relative z-10">
+          {/* Section 1: Hero Exhibition with Playfair & Telemetry */}
+          <Hero
+            onOpenResumeModal={() => setResumeModalOpen(true)}
+            onExploreDeployments={handleExploreDeployments}
+          />
 
-        {/* Section 3: Technical Architecture Bento Grid */}
-        <BentoGrid />
+          {/* Section 2: Curated Live Project Grid (All 15 Applications) */}
+          <ProjectGrid
+            onOpenDetails={(project) => setSelectedProject(project)}
+          />
 
-        {/* Section 4: Architecture & Skills Matrix */}
-        <TechMatrix />
+          {/* Section 3: Technical Architecture Bento Grid */}
+          <BentoGrid />
 
-        {/* Section 5: Direct Contact & Proposal Launcher */}
-        <ContactSection />
-      </main>
+          {/* Section 4: Architecture & Skills Matrix */}
+          <TechMatrix />
 
-      {/* Footer with telemetry and copyright */}
-      <Footer />
+          {/* Section 5: Direct Contact & Proposal Launcher */}
+          <ContactSection />
+        </main>
+
+        {/* Footer with telemetry and copyright */}
+        <Footer />
+      </div>
 
       {/* Deep-Dive Project Modal */}
-      <ProjectModal
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-      />
+      <div id="project-modal-root" className="print:hidden">
+        <ProjectModal
+          project={selectedProject}
+          onClose={() => setSelectedProject(null)}
+        />
+      </div>
 
       {/* Printable Digital Resume Modal */}
       <ResumeModal
@@ -93,12 +98,14 @@ export function App() {
       />
 
       {/* Global Cmd+K Command Palette */}
-      <CommandPalette
-        isOpen={commandPaletteOpen}
-        onClose={() => setCommandPaletteOpen(false)}
-        onSelectProject={(project) => setSelectedProject(project)}
-        onOpenResumeModal={() => setResumeModalOpen(true)}
-      />
+      <div id="command-palette-root" className="print:hidden">
+        <CommandPalette
+          isOpen={commandPaletteOpen}
+          onClose={() => setCommandPaletteOpen(false)}
+          onSelectProject={(project) => setSelectedProject(project)}
+          onOpenResumeModal={() => setResumeModalOpen(true)}
+        />
+      </div>
     </div>
   );
 }
