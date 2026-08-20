@@ -93,13 +93,15 @@ export const SKILL_CATEGORIES: TechSkillCategory[] = [
 
 export const PROFILE_INFO = {
   name: 'Alok Vishwakarma',
-  title: 'Principal Full-Stack Web Architect & Creative Technologist',
-  bio: 'Engineering world-class digital architectures, in-browser compute engines, 60 FPS WebGL 3D systems, and high-impact enterprise applications.',
+  title: 'Principal Full-Stack Web Architect | Next.js (App Router), TypeScript, Three.js & Web Audio API',
+  bio: 'Senior Full-Stack Web Architect with proven engineering mastery across 15 fully deployed web applications spanning Fintech engines, 3D WebGL configurators, Web Audio DAWs, in-browser SQL sandboxes, real estate portals, e-commerce storefronts, and client enterprise platforms.',
   email: 'alokvishwa1998@gmail.com',
+  phone: '+91 8826001811',
+  location: 'New Delhi, India 110042',
+  website: 'https://alokvishwa-studio.vercel.app',
   github: 'https://github.com/yankun22',
   linkedin: 'https://www.linkedin.com/in/alokvishwa-studio',
   availabilityStatus: '✦ OPEN FOR PRIVATE COMMISSIONS & FULL-STACK ARCHITECTURE',
   experienceYears: '6+ Years',
   appsLive: 15,
-  location: 'Global / Remote',
 };
