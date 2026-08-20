@@ -76,8 +76,8 @@
 }
 
 /* =========================================================
-   EXECUTIVE PDF & RESUME PRINT STYLESHEET
-   Guarantees clean 2-page print pagination & zero debris
+   EXACT 2-PAGE EXECUTIVE RESUME PRINT SPECIFICATION
+   Matches resume_Final with 100% strict 2-page pagination
    ========================================================= */
 @page {
   size: A4 portrait;
@@ -88,9 +88,9 @@
   html, body {
     background: #ffffff !important;
     background-color: #ffffff !important;
-    color: #0f172a !important;
-    font-size: 9.5pt !important;
-    line-height: 1.35 !important;
+    color: #000000 !important;
+    font-size: 8.8pt !important;
+    line-height: 1.28 !important;
     overflow: visible !important;
     height: auto !important;
     min-height: auto !important;
@@ -100,7 +100,7 @@
     print-color-adjust: exact !important;
   }
 
-  /* Completely eliminate background website noise when printing */
+  /* Force hide all background website noise */
   #main-website-shell,
   .particle-bg-container,
   nav,
@@ -116,7 +116,7 @@
     visibility: hidden !important;
   }
 
-  /* Reset modal overlay positioning for print flow */
+  /* Modal Wrapper Reset */
   .resume-print-wrapper {
     position: static !important;
     display: block !important;
@@ -135,7 +135,7 @@
     margin: 0 !important;
     padding: 0 !important;
     background: #ffffff !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
@@ -144,36 +144,70 @@
     max-height: none !important;
   }
 
-  /* Prevent awkward page cuts */
-  .print-avoid-break {
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
+  /* Distinct Page Splitting */
+  .resume-page {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
-  .print-section {
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-    margin-bottom: 0.75rem !important;
+  #resume-page-1 {
+    page-break-after: always !important;
+    break-after: page !important;
+    min-height: 270mm !important;
   }
 
-  .print-role {
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-    margin-bottom: 0.6rem !important;
+  #resume-page-2 {
+    page-break-before: always !important;
+    break-before: page !important;
+    min-height: 270mm !important;
   }
 
-  .print-project-card {
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-    margin-bottom: 0.5rem !important;
-    background-color: #f8fafc !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 6px !important;
-    padding: 6px 10px !important;
+  .resume-section-title {
+    font-weight: 800 !important;
+    font-size: 9.5pt !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    color: #000000 !important;
+    border-bottom: 1.5px solid #000000 !important;
+    padding-bottom: 2px !important;
+    margin-bottom: 6px !important;
   }
 
-  a {
-    text-decoration: none !important;
+  .resume-category-title {
+    font-weight: 700 !important;
+    font-size: 8.5pt !important;
+    color: #0284c7 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.03em !important;
+    margin-top: 6px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .resume-accent-text {
+    color: #0284c7 !important;
+  }
+
+  .resume-tech-stack {
     color: #0369a1 !important;
+    font-weight: 600 !important;
+    font-size: 8pt !important;
+  }
+
+  .resume-link {
+    color: #0284c7 !important;
+    text-decoration: none !important;
+  }
+
+  .resume-page-footer {
+    position: absolute !important;
+    bottom: 2mm !important;
+    right: 0 !important;
+    font-size: 7.5pt !important;
+    color: #64748b !important;
+    font-family: monospace !important;
   }
 }
