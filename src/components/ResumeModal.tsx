@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
-  Printer, 
   Download,
   Mail, 
   Phone, 
@@ -28,10 +27,6 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => 
 
   if (!isOpen) return null;
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const handleDirectDownload = async () => {
     setIsGeneratingPDF(true);
     setDownloadSuccess(false);
@@ -42,8 +37,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => 
         setTimeout(() => setDownloadSuccess(false), 3000);
       }
     } catch (err) {
-      console.error(err);
-      window.print();
+      console.error('PDF export error:', err);
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -70,8 +64,8 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => 
           id="resume-printable-document"
           className="relative w-full max-w-4xl rounded-2xl bg-white text-slate-900 border border-slate-200 shadow-2xl z-10 my-4 max-h-[92vh] overflow-y-auto print:max-h-none print:border-none print:shadow-none print:bg-white print:p-0 print:m-0 print:rounded-none"
         >
-          {/* Header Action Bar (Hidden when printed or exported to PDF) */}
-          <div className="sticky top-0 bg-[#0a0b0e] text-platinum border-b border-white/[0.1] px-5 py-3.5 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden no-pdf-export">
+          {/* Header Action Bar: Single Download PDF Button */}
+          <div className="sticky top-0 bg-[#0a0b0e] text-platinum border-b border-white/[0.1] px-5 py-3.5 z-20 flex items-center justify-between gap-3 print:hidden no-pdf-export">
             <div className="flex items-center gap-2.5">
               <div className="p-2 rounded-xl bg-white/[0.06] border border-white/[0.1] text-platinum">
                 <FileText className="w-4 h-4 text-platinum" />
@@ -81,52 +75,41 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => 
                   Alok Vishwakarma — Master Resume
                 </span>
                 <span className="text-[11px] text-emerald-400 font-mono">
-                  Exact 2-Page Executive A4 Division • 15 Deployments
+                  Exact 2-Page Executive A4 • Clickable PDF Links
                 </span>
               </div>
             </div>
 
-            {/* Dual Download Controls */}
-            <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-              {/* Direct PDF Download Button */}
+            {/* Single Download PDF Action Button & Close */}
+            <div className="flex items-center gap-2.5">
               <button
                 onClick={handleDirectDownload}
                 disabled={isGeneratingPDF}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-slate-950 hover:bg-slate-200 active:scale-[0.98] font-bold text-xs shadow-sm transition-all min-h-[38px] disabled:opacity-75 cursor-pointer"
-                title="Download direct 2-page PDF file"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-slate-950 hover:bg-slate-200 active:scale-[0.98] font-bold text-xs sm:text-sm shadow-md transition-all min-h-[40px] disabled:opacity-75 cursor-pointer"
+                title="Download 2-page PDF with clickable links"
               >
                 {isGeneratingPDF ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Rendering 2 Pages...</span>
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                    <span>Rendering PDF with Links...</span>
                   </>
                 ) : downloadSuccess ? (
                   <>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Saved 2-Page PDF!</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Downloaded!</span>
                   </>
                 ) : (
                   <>
-                    <Download className="w-3.5 h-3.5" />
+                    <Download className="w-4 h-4 text-slate-950" />
                     <span>Download PDF</span>
                   </>
                 )}
               </button>
 
-              {/* Native Print / Browser PDF Save Button */}
-              <button
-                onClick={handlePrint}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.08] text-platinum hover:bg-white/[0.16] hover:text-white border border-white/[0.12] font-medium text-xs shadow-sm transition-colors min-h-[38px] cursor-pointer"
-                title="Open browser print dialog"
-              >
-                <Printer className="w-3.5 h-3.5 text-platinum-muted" />
-                <span>Print / Save PDF</span>
-              </button>
-
               {/* Close Button */}
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl bg-white/[0.08] text-platinum-muted hover:text-white border border-white/[0.12] min-h-[38px] min-w-[38px] flex items-center justify-center cursor-pointer transition-colors"
+                className="p-2.5 rounded-xl bg-white/[0.08] text-platinum-muted hover:text-white border border-white/[0.12] min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer transition-colors"
                 aria-label="Close resume"
               >
                 <X className="w-4 h-4" />
@@ -155,7 +138,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => 
                 <span className="text-sky-700 font-bold">Next.js (App Router), TypeScript, Three.js & Web Audio API</span>
               </p>
 
-              {/* Contact Icons Row */}
+              {/* Contact Icons Row (All Interactive Links) */}
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2.5 text-[11px] text-slate-700 font-mono">
                 <div className="flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-rose-600 shrink-0" />
@@ -389,7 +372,9 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => 
 
             {/* Page 1 Footer */}
             <div className="mt-4 pt-2 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-500 font-mono">
-              <span className="hidden sm:inline">alokvishwa-studio.vercel.app</span>
+              <a href="https://alokvishwa-studio.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:text-sky-700">
+                alokvishwa-studio.vercel.app
+              </a>
               <span className="ml-auto font-medium">Alok Vishwakarma — Page 1 of 2</span>
             </div>
           </div>
@@ -557,7 +542,9 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => 
 
             {/* Page 2 Footer */}
             <div className="mt-6 pt-2 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-500 font-mono">
-              <span className="hidden sm:inline">alokvishwa-studio.vercel.app</span>
+              <a href="https://alokvishwa-studio.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:text-sky-700">
+                alokvishwa-studio.vercel.app
+              </a>
               <span className="ml-auto font-medium">Alok Vishwakarma — Page 2 of 2</span>
             </div>
           </div>

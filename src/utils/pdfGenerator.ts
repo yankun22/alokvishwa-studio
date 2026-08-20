@@ -1,8 +1,22 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+interface PageLinkInfo {
+  url: string;
+  x: number; // in mm
+  y: number; // in mm
+  w: number; // in mm
+  h: number; // in mm
+}
+
+interface PageRenderResult {
+  canvas: HTMLCanvasElement;
+  links: PageLinkInfo[];
+}
+
 /**
  * Generates and downloads a perfectly divided 2-page PDF of the resume
+ * with all interactive hyperlinks mapped into the PDF annotations.
  */
 export async function downloadResumeAsPDF(
   page1Id = 'resume-page-1',
@@ -14,13 +28,18 @@ export async function downloadResumeAsPDF(
 
   if (!page1El || !page2El) {
     console.error('Resume page elements not found for PDF export.');
-    window.print();
     return false;
   }
 
   try {
-    // Helper function to render a page cleanly onto a canvas
-    const renderPageToCanvas = async (sourceElement: HTMLElement): Promise<HTMLCanvasElement> => {
+    const pdfWidth = 210; // A4 width in mm
+    const pdfHeight = 297; // A4 height in mm
+    const margin = 8; // 8mm margin
+    const contentWidth = pdfWidth - (margin * 2);
+    const contentHeight = pdfHeight - (margin * 2);
+
+    // Helper to render a page to canvas and extract link bounding boxes
+    const renderPage = async (sourceElement: HTMLElement): Promise<PageRenderResult> => {
       const container = document.createElement('div');
       container.style.position = 'fixed';
       container.style.top = '-99999px';
@@ -34,11 +53,11 @@ export async function downloadResumeAsPDF(
 
       const clone = sourceElement.cloneNode(true) as HTMLElement;
       
-      // Remove interactive buttons or excluded items
+      // Exclude screen-only buttons
       const excluded = clone.querySelectorAll('.no-pdf-export, button');
       excluded.forEach((el) => el.remove());
 
-      // Force clean white theme styles for print fidelity
+      // Force clean light styling
       clone.classList.remove('text-platinum', 'text-platinum-muted', 'bg-[#0a0b0e]');
       clone.classList.add('bg-white', 'text-slate-900');
       clone.style.width = '100%';
@@ -47,8 +66,30 @@ export async function downloadResumeAsPDF(
       container.appendChild(clone);
       document.body.appendChild(container);
 
+      // Extract all anchor links and their exact positions relative to container
+      const containerRect = container.getBoundingClientRect();
+      const anchorNodes = container.querySelectorAll<HTMLAnchorElement>('a[href]');
+      const rawLinks: { url: string; relX: number; relY: number; relW: number; relH: number }[] = [];
+
+      anchorNodes.forEach((a) => {
+        const href = a.getAttribute('href');
+        if (href && href !== '#' && !href.startsWith('javascript:')) {
+          const rect = a.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0) {
+            rawLinks.push({
+              url: a.href,
+              relX: (rect.left - containerRect.left) / containerRect.width,
+              relY: (rect.top - containerRect.top) / containerRect.height,
+              relW: rect.width / containerRect.width,
+              relH: rect.height / containerRect.height,
+            });
+          }
+        }
+      });
+
+      // Render high-res retina canvas
       const canvas = await html2canvas(clone, {
-        scale: 2, // 2x retina sharpness
+        scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
@@ -56,14 +97,27 @@ export async function downloadResumeAsPDF(
       });
 
       document.body.removeChild(container);
-      return canvas;
+
+      // Convert relative coordinates to PDF mm coordinates
+      const imgHeight = Math.min((canvas.height * contentWidth) / canvas.width, contentHeight);
+      const links: PageLinkInfo[] = rawLinks.map((link) => ({
+        url: link.url,
+        x: margin + link.relX * contentWidth,
+        y: margin + link.relY * imgHeight,
+        w: link.relW * contentWidth,
+        h: link.relH * imgHeight,
+      }));
+
+      return { canvas, links };
     };
 
-    // Render Page 1 and Page 2 separately
-    const canvas1 = await renderPageToCanvas(page1El);
-    const canvas2 = await renderPageToCanvas(page2El);
+    // Render Page 1 and Page 2 in parallel
+    const [page1Result, page2Result] = await Promise.all([
+      renderPage(page1El),
+      renderPage(page2El),
+    ]);
 
-    // Initialize A4 Portrait jsPDF document
+    // Create jsPDF A4 Document
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -71,28 +125,31 @@ export async function downloadResumeAsPDF(
       compress: true,
     });
 
-    const pdfWidth = 210; // A4 mm
-    const pdfHeight = 297; // A4 mm
-    const margin = 8; // 8mm margin
-    const contentWidth = pdfWidth - (margin * 2);
-    const contentHeight = pdfHeight - (margin * 2);
-
-    // Add Page 1
-    const imgData1 = canvas1.toDataURL('image/jpeg', 0.98);
-    const imgHeight1 = Math.min((canvas1.height * contentWidth) / canvas1.width, contentHeight);
+    // ----------------- PAGE 1 -----------------
+    const imgData1 = page1Result.canvas.toDataURL('image/jpeg', 0.98);
+    const imgHeight1 = Math.min((page1Result.canvas.height * contentWidth) / page1Result.canvas.width, contentHeight);
     pdf.addImage(imgData1, 'JPEG', margin, margin, contentWidth, imgHeight1, undefined, 'FAST');
 
-    // Add Page 2
+    // Add clickable link annotations for Page 1
+    page1Result.links.forEach((link) => {
+      pdf.link(link.x, link.y, link.w, link.h, { url: link.url });
+    });
+
+    // ----------------- PAGE 2 -----------------
     pdf.addPage();
-    const imgData2 = canvas2.toDataURL('image/jpeg', 0.98);
-    const imgHeight2 = Math.min((canvas2.height * contentWidth) / canvas2.width, contentHeight);
+    const imgData2 = page2Result.canvas.toDataURL('image/jpeg', 0.98);
+    const imgHeight2 = Math.min((page2Result.canvas.height * contentWidth) / page2Result.canvas.width, contentHeight);
     pdf.addImage(imgData2, 'JPEG', margin, margin, contentWidth, imgHeight2, undefined, 'FAST');
+
+    // Add clickable link annotations for Page 2
+    page2Result.links.forEach((link) => {
+      pdf.link(link.x, link.y, link.w, link.h, { url: link.url });
+    });
 
     pdf.save(filename);
     return true;
   } catch (err) {
-    console.error('Failed to generate 2-page PDF:', err);
-    window.print();
+    console.error('Failed to generate 2-page PDF with links:', err);
     return false;
   }
 }
