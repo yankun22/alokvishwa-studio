@@ -66,7 +66,7 @@ npm run build
 
 ## ✦ Contact & Inquiries
 
-- **LinkedIn**: [alok-vish-8639a426a](https://www.linkedin.com/in/alok-vish-8639a426a)
+- **LinkedIn**: [alokvishwa-studio](https://www.linkedin.com/in/alokvishwa-studio)
 - **GitHub**: [@yankun22](https://github.com/yankun22)
 - **Email**: [alokvishwa1998@gmail.com](mailto:alokvishwa1998@gmail.com)
 

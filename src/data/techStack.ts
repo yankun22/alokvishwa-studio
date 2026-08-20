@@ -97,7 +97,7 @@ export const PROFILE_INFO = {
   bio: 'Engineering world-class digital architectures, in-browser compute engines, 60 FPS WebGL 3D systems, and high-impact enterprise applications.',
   email: 'alokvishwa1998@gmail.com',
   github: 'https://github.com/yankun22',
-  linkedin: 'https://www.linkedin.com/in/alok-vish-8639a426a',
+  linkedin: 'https://www.linkedin.com/in/alokvishwa-studio',
   availabilityStatus: '✦ OPEN FOR PRIVATE COMMISSIONS & FULL-STACK ARCHITECTURE',
   experienceYears: '6+ Years',
   appsLive: 15,

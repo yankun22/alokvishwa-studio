@@ -89,7 +89,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => 
                   <Github className="w-3.5 h-3.5 text-champagne" /> github.com/yankun22
                 </a>
                 <a href={PROFILE_INFO.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-champagne flex items-center gap-1.5">
-                  <Linkedin className="w-3.5 h-3.5 text-champagne" /> linkedin.com/in/alok-vishwakarma
+                  <Linkedin className="w-3.5 h-3.5 text-champagne" /> linkedin.com/in/alokvishwa-studio
                 </a>
               </div>
             </div>
