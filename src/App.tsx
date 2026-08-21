@@ -10,6 +10,7 @@ import { Footer } from './components/Footer';
 import { ProjectModal } from './components/ProjectModal';
 import { ResumeModal } from './components/ResumeModal';
 import { CommandPalette } from './components/CommandPalette';
+import { ProposalsModal } from './components/ProposalsModal';
 import { useKeyboardShortcut } from './hooks/useKeyboardShortcut';
 import { Project } from './types';
 
@@ -17,11 +18,27 @@ export function App() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [proposalsModalOpen, setProposalsModalOpen] = useState(false);
 
   // Global keyboard shortcut: Cmd+K / Ctrl+K opens Command Palette
   useKeyboardShortcut('k', () => {
     setCommandPaletteOpen((prev) => !prev);
   });
+
+  // Global keyboard shortcut: Shift+P opens Proposals Vault
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // If pressing Shift+P or Alt+P and not actively focused in a form text input
+      const target = e.target as HTMLElement;
+      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+      if (!isInput && e.key.toLowerCase() === 'p' && (e.shiftKey || e.altKey)) {
+        e.preventDefault();
+        setProposalsModalOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   // Global Escape key handler
   useEffect(() => {
@@ -30,11 +47,12 @@ export function App() {
         if (selectedProject) setSelectedProject(null);
         if (resumeModalOpen) setResumeModalOpen(false);
         if (commandPaletteOpen) setCommandPaletteOpen(false);
+        if (proposalsModalOpen) setProposalsModalOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedProject, resumeModalOpen, commandPaletteOpen]);
+  }, [selectedProject, resumeModalOpen, commandPaletteOpen, proposalsModalOpen]);
 
   const handleExploreDeployments = () => {
     const element = document.getElementById('deployments');
@@ -80,7 +98,9 @@ export function App() {
         </main>
 
         {/* Footer with telemetry and copyright */}
-        <Footer />
+        <Footer
+          onOpenProposalsVault={() => setProposalsModalOpen(true)}
+        />
       </div>
 
       {/* Deep-Dive Project Modal */}
@@ -97,6 +117,12 @@ export function App() {
         onClose={() => setResumeModalOpen(false)}
       />
 
+      {/* Owner Recorded Proposals Vault Modal */}
+      <ProposalsModal
+        isOpen={proposalsModalOpen}
+        onClose={() => setProposalsModalOpen(false)}
+      />
+
       {/* Global Cmd+K Command Palette */}
       <div id="command-palette-root" className="print:hidden">
         <CommandPalette
@@ -104,6 +130,7 @@ export function App() {
           onClose={() => setCommandPaletteOpen(false)}
           onSelectProject={(project) => setSelectedProject(project)}
           onOpenResumeModal={() => setResumeModalOpen(true)}
+          onOpenProposalsVault={() => setProposalsModalOpen(true)}
         />
       </div>
     </div>

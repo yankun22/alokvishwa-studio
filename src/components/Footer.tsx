@@ -1,15 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowUp, 
   Github, 
   Linkedin, 
   Mail, 
-  Layers 
+  Layers,
+  Inbox
 } from 'lucide-react';
 import { PROFILE_INFO } from '../data/techStack';
+import { getUnreadProposalsCount } from '../utils/proposalStorage';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onOpenProposalsVault?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenProposalsVault }) => {
   const currentYear = new Date().getFullYear();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const updateCount = () => {
+      setUnreadCount(getUnreadProposalsCount());
+    };
+    updateCount();
+    window.addEventListener('alok_proposals_updated', updateCount);
+    window.addEventListener('storage', updateCount);
+    return () => {
+      window.removeEventListener('alok_proposals_updated', updateCount);
+      window.removeEventListener('storage', updateCount);
+    };
+  }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -70,6 +90,22 @@ export const Footer: React.FC = () => {
             >
               <Mail className="w-4 h-4" />
             </a>
+            {onOpenProposalsVault && (
+              <button
+                onClick={onOpenProposalsVault}
+                className="relative flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-platinum border border-white/[0.08] hover:border-white/20 transition-all text-xs font-mono min-h-[44px]"
+                title="Open Recorded Proposals Vault"
+                aria-label="Open Recorded Proposals Vault"
+              >
+                <Inbox className="w-4 h-4 text-platinum-muted" />
+                <span className="hidden sm:inline">Proposals Vault</span>
+                {unreadCount > 0 && (
+                  <span className="w-5 h-5 rounded-full bg-emerald-400 text-slate-950 text-[10px] font-bold flex items-center justify-center animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+            )}
             <button
               onClick={scrollToTop}
               className="p-2.5 rounded-xl bg-white/[0.05] hover:bg-white text-platinum-muted hover:text-slate-950 border border-white/[0.1] transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"

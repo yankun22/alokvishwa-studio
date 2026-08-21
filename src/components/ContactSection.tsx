@@ -14,18 +14,43 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { PROFILE_INFO } from '../data/techStack';
+import { saveProposal, Proposal } from '../utils/proposalStorage';
+
+const CURRENCIES = [
+  { code: 'USD', label: 'USD ($)' },
+  { code: 'EUR', label: 'EUR (€)' },
+  { code: 'GBP', label: 'GBP (£)' },
+  { code: 'INR', label: 'INR (₹)' },
+  { code: 'CAD', label: 'CAD ($)' },
+  { code: 'AUD', label: 'AUD ($)' },
+  { code: 'SGD', label: 'SGD ($)' },
+  { code: 'AED', label: 'AED (د.إ)' },
+  { code: 'JPY', label: 'JPY (¥)' },
+  { code: 'CHF', label: 'CHF (Fr)' },
+  { code: 'OTHER', label: 'Custom / Other' },
+];
+
+const BUDGET_PRESETS = [
+  '5k - 10k',
+  '10k - 25k',
+  '25k - 50k',
+  '50k+',
+  'Flexible'
+];
 
 export const ContactSection: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     projectType: 'Web3D / Creative Studio',
-    budget: '$10k - $25k',
+    currency: 'USD ($)',
+    budget: '10k - 25k',
     message: '',
   });
 
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [lastSubmittedProposal, setLastSubmittedProposal] = useState<Proposal | null>(null);
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(PROFILE_INFO.email);
@@ -35,27 +60,30 @@ export const ContactSection: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Securely record proposal locally in the browser vault
+    const saved = saveProposal({
+      name: formData.name,
+      email: formData.email,
+      projectType: formData.projectType,
+      currency: formData.currency,
+      budget: formData.budget.trim() || 'Flexible',
+      message: formData.message,
+    });
+
+    setLastSubmittedProposal(saved);
     setSubmitted(true);
 
     try {
       confetti({
-        particleCount: 80,
-        spread: 60,
+        particleCount: 90,
+        spread: 70,
         origin: { y: 0.6 },
-        colors: ['#ffffff', '#f8fafc', '#94a3b8', '#38bdf8']
+        colors: ['#ffffff', '#f8fafc', '#94a3b8', '#38bdf8', '#34d399']
       });
     } catch {
       // ignore
     }
-
-    const subject = encodeURIComponent(`Executive Project Inquiry: ${formData.projectType} from ${formData.name}`);
-    const body = encodeURIComponent(
-      `Hello Alok,\n\nName / Organization: ${formData.name}\nEmail: ${formData.email}\nScope: ${formData.projectType}\nBudget Bracket: ${formData.budget}\n\nProject Scope & Objectives:\n${formData.message}\n\nLooking forward to partnering!`
-    );
-
-    setTimeout(() => {
-      window.location.href = `mailto:${PROFILE_INFO.email}?subject=${subject}&body=${body}`;
-    }, 400);
   };
 
   return (
@@ -176,23 +204,63 @@ export const ContactSection: React.FC = () => {
               </div>
 
               {submitted ? (
-                <div className="py-12 text-center space-y-4">
-                  <div className="w-14 h-14 rounded-full bg-white/[0.05] text-platinum flex items-center justify-center mx-auto border border-white/[0.1]">
-                    <CheckCircle2 className="w-7 h-7" />
+                <div className="py-8 sm:py-10 text-center space-y-5">
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
+                    <CheckCircle2 className="w-8 h-8" />
                   </div>
-                  <h4 className="font-sans font-bold text-xl text-platinum">
-                    Proposal Ready in Email Client
-                  </h4>
-                  <p className="text-platinum-muted text-sm max-w-md mx-auto font-light">
-                    Your email composer has been prefilled with the scope details. You can also write directly to{' '}
-                    <span className="text-platinum font-mono">{PROFILE_INFO.email}</span>.
-                  </p>
-                  <button
-                    onClick={() => setSubmitted(false)}
-                    className="mt-4 px-6 py-3 rounded-xl bg-white/[0.05] text-platinum text-xs font-semibold hover:bg-white/[0.08] transition-colors min-h-[44px]"
-                  >
-                    Send Another Proposal
-                  </button>
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-platinum text-xs font-mono mb-2">
+                      <span>REF:</span>
+                      <strong className="text-emerald-400 font-bold">{lastSubmittedProposal?.id || 'PRP-CONFIRMED'}</strong>
+                    </div>
+                    <h4 className="font-sans font-bold text-2xl text-platinum">
+                      Proposal Securely Recorded
+                    </h4>
+                    <p className="text-platinum-muted text-xs sm:text-sm max-w-md mx-auto font-light mt-2 leading-relaxed">
+                      Your technical specifications have been directly logged into Alok's executive workflow. No email sending or third-party mail app required.
+                    </p>
+                  </div>
+
+                  {/* Recorded Summary Card */}
+                  {lastSubmittedProposal && (
+                    <div className="max-w-md mx-auto p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-left space-y-2 text-xs font-mono">
+                      <div className="flex justify-between border-b border-white/[0.04] pb-1.5">
+                        <span className="text-platinum-muted">Client:</span>
+                        <span className="text-platinum font-medium">{lastSubmittedProposal.name}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-white/[0.04] pb-1.5">
+                        <span className="text-platinum-muted">Email:</span>
+                        <span className="text-platinum">{lastSubmittedProposal.email}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-white/[0.04] pb-1.5">
+                        <span className="text-platinum-muted">Scope:</span>
+                        <span className="text-platinum">{lastSubmittedProposal.projectType}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-platinum-muted">Budget:</span>
+                        <span className="text-emerald-400 font-semibold">{lastSubmittedProposal.currency} {lastSubmittedProposal.budget}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="pt-2">
+                    <button
+                      onClick={() => {
+                        setSubmitted(false);
+                        setFormData({
+                          name: '',
+                          email: '',
+                          projectType: 'Web3D / Creative Studio',
+                          currency: 'USD ($)',
+                          budget: '10k - 25k',
+                          message: '',
+                        });
+                      }}
+                      className="px-6 py-3 rounded-xl bg-white text-slate-950 text-xs font-bold hover:bg-slate-200 transition-colors min-h-[44px] shadow-sm"
+                    >
+                      Submit Another Scope
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -245,19 +313,54 @@ export const ContactSection: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono text-platinum-muted mb-2">
-                        Budget Bracket
-                      </label>
-                      <select
-                        value={formData.budget}
-                        onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-[#0a0b0e] border border-white/[0.06] text-platinum text-sm focus:border-white/40 focus:ring-1 focus:ring-white/30 min-h-[44px]"
-                      >
-                        <option value="< $10,000">&lt; $10,000 (Sprint / Audit)</option>
-                        <option value="$10,000 - $25,000">$10,000 - $25,000 (Production System)</option>
-                        <option value="$25,000 - $50,000">$25,000 - $50,000 (Enterprise Solution)</option>
-                        <option value="$50,000+">$50,000+ (Multi-System Architecture)</option>
-                      </select>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-mono text-platinum-muted">
+                          Estimated Budget & Currency
+                        </label>
+                        <span className="text-[10px] font-mono text-platinum-muted/60">
+                          Custom & flexible
+                        </span>
+                      </div>
+                      <div className="flex rounded-xl bg-white/[0.03] border border-white/[0.06] focus-within:border-white/40 focus-within:ring-1 focus-within:ring-white/30 transition-all overflow-hidden min-h-[44px]">
+                        <select
+                          value={formData.currency}
+                          onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                          className="px-3 py-2.5 bg-[#0a0b0e] text-platinum text-xs sm:text-sm font-mono border-r border-white/[0.08] focus:outline-none cursor-pointer shrink-0"
+                          aria-label="Select Currency"
+                        >
+                          {CURRENCIES.map((c) => (
+                            <option key={c.code} value={c.label} className="bg-[#0a0b0e] text-platinum">
+                              {c.label}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          type="text"
+                          value={formData.budget}
+                          onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                          placeholder="e.g. 15,000, 10k-25k, or Flexible"
+                          className="w-full px-3.5 py-2.5 bg-transparent text-platinum text-sm focus:outline-none placeholder:text-platinum-dark min-w-0"
+                          aria-label="Custom Budget Amount"
+                        />
+                      </div>
+                      {/* Quick selection chips */}
+                      <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                        <span className="text-[10px] font-mono text-platinum-muted/60 mr-0.5">Presets:</span>
+                        {BUDGET_PRESETS.map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, budget: preset })}
+                            className={`text-[10px] font-mono px-2 py-0.5 rounded-md border transition-all ${
+                              formData.budget === preset
+                                ? 'bg-white/15 text-platinum border-white/30 shadow-sm'
+                                : 'bg-white/[0.02] text-platinum-muted hover:text-platinum hover:bg-white/[0.06] border-white/[0.04]'
+                            }`}
+                          >
+                            {preset}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 

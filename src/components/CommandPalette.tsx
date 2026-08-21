@@ -8,7 +8,8 @@ import {
   Mail, 
   Github, 
   X, 
-  Sparkles
+  Sparkles,
+  Inbox
 } from 'lucide-react';
 import { PROJECTS } from '../data/projects';
 import { PROFILE_INFO } from '../data/techStack';
@@ -19,12 +20,14 @@ interface CommandPaletteProps {
   onClose: () => void;
   onSelectProject: (project: Project) => void;
   onOpenResumeModal: () => void;
+  onOpenProposalsVault?: () => void;
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
   isOpen,
   onClose,
   onOpenResumeModal,
+  onOpenProposalsVault,
 }) => {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -50,6 +53,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   });
 
   const staticActions = [
+    {
+      id: 'action-proposals',
+      title: 'Open Recorded Proposals Vault',
+      category: 'Owner Dashboard',
+      icon: Inbox,
+      action: () => {
+        onClose();
+        if (onOpenProposalsVault) onOpenProposalsVault();
+      },
+    },
     {
       id: 'action-resume',
       title: 'Download Resume (PDF)',
